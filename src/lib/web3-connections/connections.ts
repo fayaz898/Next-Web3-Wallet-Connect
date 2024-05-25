@@ -24,7 +24,10 @@ function getIsBraveWallet(): boolean {
 
 export function getHasMetaMaskExtensionInstalled(): boolean {
   //@ts-ignore
-  return (window.ethereum?.isMetaMask ?? false) && !getIsBraveWallet();
+  if (window) {
+    return (window.ethereum?.isMetaMask ?? false) && !getIsBraveWallet();
+  }
+  return false;
 }
 
 export function onConnectionError(error: Error) {
@@ -58,7 +61,7 @@ export const getConnection = (connector: Connector | CONNECTION_TYPE) => {
 
 export const switchNetwork = async (
   chainId: number,
-  connectionType: CONNECTION_TYPE | null
+  connectionType: CONNECTION_TYPE | null | undefined
 ) => {
   if (!connectionType) return;
 

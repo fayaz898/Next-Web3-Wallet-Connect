@@ -1,3 +1,4 @@
+import { Connector } from "@web3-react/types";
 import {
   CONNECTION_TYPE,
   getHasMetaMaskExtensionInstalled,
@@ -6,13 +7,15 @@ import { METAMASK_URL } from "../web3-connections/constants";
 import { Option } from "./Option";
 
 type ConnectOptionsParams = {
-  activeConnectionType: CONNECTION_TYPE | null;
+  connector: Connector;
+  activeConnectionType: CONNECTION_TYPE | null | undefined;
   isConnectionActive: boolean;
   onActivate: (connectionType: CONNECTION_TYPE) => void;
-  onDeactivate: (connectionType: null) => void;
+  onDeactivate: (connectionType: null | undefined) => void;
 };
 
 export const ConnectionOptions = ({
+  connector,
   activeConnectionType,
   isConnectionActive,
   onActivate,
@@ -24,6 +27,7 @@ export const ConnectionOptions = ({
       !isActive || (isActive && activeConnectionType === null);
     const metaMaskOption = hasMetamaskExtension ? (
       <Option
+        connector={connector}
         isEnabled={
           isNoOptionAction || activeConnectionType === CONNECTION_TYPE.INJECTED
         }
@@ -40,6 +44,7 @@ export const ConnectionOptions = ({
 
     const conbaseWalletOption = (
       <Option
+        connector={connector}
         isEnabled={
           isNoOptionAction ||
           activeConnectionType === CONNECTION_TYPE.COINBASE_WALLET
@@ -53,6 +58,7 @@ export const ConnectionOptions = ({
 
     const walletConnectOption = (
       <Option
+        connector={connector}
         isEnabled={
           isNoOptionAction ||
           activeConnectionType === CONNECTION_TYPE.WALLET_CONNECT

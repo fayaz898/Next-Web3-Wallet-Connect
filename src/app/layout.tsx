@@ -2,6 +2,7 @@
 
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Web3ContextProvider } from "@/lib/components/Web3ContextProvider";
 
 const inter = Inter({ subsets: ["latin"] });

@@ -17,7 +17,7 @@ interface ExampleConfig {
 export const CurrentConfig: ExampleConfig = {
   chain: Chain.MAINNET,
   rpc: {
-    polygon: "",
-    mainnet: "",
+    polygon: "https://polygon.meowrpc.com	",
+    mainnet: "https://eth-pokt.nodies.app	",
   },
 };

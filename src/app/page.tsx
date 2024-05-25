@@ -1,118 +1,61 @@
-'use client';
+"use client";
 
-import Image from "next/image";
 import styles from "./page.module.css";
-import { useWalletConnect } from "@/hooks/useWalletConnect";
+import { FallbackComponent } from "@/components/FallBackComponent";
+import { ErrorBoundary } from "react-error-boundary";
+import { CHAIN_INFO, INPUT_CHAIN_URL } from "@/lib/web3-connections/constants";
+import { useWeb3React } from "@web3-react/core";
+import { useEffect, useState } from "react";
+import {
+  CONNECTION_TYPE,
+  getConnection,
+  switchNetwork,
+} from "@/lib/web3-connections/connections";
+import { ConnectionOptions } from "@/lib/components/ConnectionOptions";
 
 export default function Home() {
-  const {
-    account,
-    isActivating,
-    isActive,
-    connectToWalletConnect,
-    connectToMetamask,
-  } = useWalletConnect();
-  
+  const { chainId, account, isActive, connector } = useWeb3React();
+  const [blockNumber, setBlockNumber] = useState<number>(0);
+  const [connectionType, setConnectionType] = useState<
+    CONNECTION_TYPE | null | undefined
+  >(null);
+
+  useEffect(() => {
+    if (!isActive) {
+      setConnectionType(undefined);
+    } else {
+      setConnectionType(getConnection(connector)?.type ?? undefined);
+    }
+  }, [connector, isActive]);
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-
-        {isActive ? (
-          <div>
-            <p>Wallet: {account}</p>
-          </div>
-        ) : (
-          <div>
-            <button className="btn btn-success">Connect To Metamask</button>
-            <button className="btn btn-success">
-              Disconnect From Metamask
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="App">
+        <ErrorBoundary FallbackComponent={FallbackComponent}>
+          {INPUT_CHAIN_URL === "" && (
+            <h2 className="error">Please set your RPC URL in config.ts</h2>
+          )}
+          <h3>{`Block Number: ${blockNumber + 1}`}</h3>
+          <ConnectionOptions
+            connector={connector}
+            activeConnectionType={connectionType}
+            isConnectionActive={isActive}
+            onActivate={setConnectionType}
+            onDeactivate={setConnectionType}
+          />
+          <h3>{`ChainId: ${chainId}`}</h3>
+          <h3>{`Connected Account: ${account}`}</h3>
+          {Object.keys(CHAIN_INFO).map((chainId) => (
+            <div key={chainId}>
+              <button
+                className="btn btn-warning m-2"
+                onClick={() => switchNetwork(parseInt(chainId), connectionType)}
+              >
+                {`Switch to ${CHAIN_INFO[chainId].label}`}
+              </button>
+            </div>
+          ))}
+        </ErrorBoundary>
       </div>
     </main>
   );
